@@ -1,7 +1,7 @@
 import re
 
 BEEP_KEYWORDS = [
-    "beep", "when you hear"
+    "beep", "when you hear", "tone"
 ]
 
 END_GREETING_KEYWORDS = [

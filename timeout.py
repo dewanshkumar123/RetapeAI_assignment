@@ -1,37 +1,29 @@
-from classifier import mentions_beep
-
 class Timeout:
     """
-    Signal 3: Conservative Timeout with Silence Detection
+    Signal 3: Silence-based Timeout
     
-    This is the final fallback when beep detection and greeting-end detection fail.
+    Triggers when 3 seconds of sustained silence is detected,
+    but ONLY after at least one speech burst has been detected.
     
-    Strategy:
-    1. Detect sustained silence (no speech detected)
-    2. Only trigger if no beep keywords mentioned in transcript
-    3. Use a configurable silence duration threshold (default 2 seconds)
-    4. Fall back to absolute max time limit (default 10 seconds) as safety net
+    This prevents triggering on initial silence before voicemail greeting starts.
     """
     
-    def __init__(self, silence_duration=2.0, max_seconds=15):
+    def __init__(self, silence_duration=3.0):
         """
         Args:
-            silence_duration: How long (seconds) of silence before triggering (default 2s)
-            max_seconds: Absolute maximum time limit before forced trigger (default 10s)
+            silence_duration: Silence duration before triggering (default 3s)
         """
         self.silence_duration = silence_duration
-        self.max_seconds = max_seconds
         self.silence_start = None
-        self.elapsed = 0
         self.triggered = False
+        self.speech_detected_once = False  # Track if we've heard speech at least once
         
-    def process(self, is_speech, transcript, current_time=0):
+    def process(self, is_speech, current_time=0):
         """
         Process frame for timeout trigger.
         
         Args:
-            is_speech: Boolean indicating if speech is detected in current frame
-            transcript: STT transcript string
+            is_speech: Boolean indicating if speech is detected
             current_time: Elapsed time in seconds
             
         Returns:
@@ -40,36 +32,27 @@ class Timeout:
         if self.triggered:
             return False
         
-        self.elapsed = current_time
-        
-        # Check absolute max time (safety net)
-        if current_time >= self.max_seconds:
-            print("heyyyyyy")
-            self.triggered = True
-            return True
-        
-        # Check if beep is mentioned - if so, don't timeout (beep is coming)
-        if transcript and mentions_beep(transcript):
-            self.silence_start = None
-            return False
-        
-        # Track silence duration
+        # Track if we've ever detected speech
         if is_speech:
+            self.speech_detected_once = True
             # Speech detected - reset silence counter
             self.silence_start = None
             return False
-        else:
-            # No speech (silence or noise)
-            if self.silence_start is None:
-                self.silence_start = current_time
-            
-            silence_duration = current_time - self.silence_start
-            
-            # Trigger if we've had sustained silence
-            if silence_duration >= self.silence_duration:
-                print("Exceeds silence dur")
-                self.triggered = True
-                return True
+        
+        # Don't count silence until we've heard at least one speech burst
+        if not self.speech_detected_once:
+            return False
+        
+        # No speech (silence or noise) - and we've heard speech before
+        if self.silence_start is None:
+            self.silence_start = current_time
+        
+        silence_duration = current_time - self.silence_start
+        
+        # Trigger if we've had sustained silence after speech has been detected
+        if silence_duration >= self.silence_duration:
+            self.triggered = True
+            return True
         
         return False
     

@@ -7,11 +7,11 @@ from timeout import Timeout
 from resolver import Resolver
 from vad import is_speech
 
-AUDIO_FILE = "voicemails/vm5.wav"
+AUDIO_FILE = "voicemails/vm6.wav"
 
 beep = BeepDetector()
 signal2 = Signal2()
-timeout = Timeout(silence_duration=2.0, max_seconds=15)
+timeout = Timeout(silence_duration=3.0)
 resolver = Resolver()
 recognizer = create_recognizer()
 
@@ -24,9 +24,9 @@ for frame in stream_audio(AUDIO_FILE):
     # Get speech detection result
     speech_detected = is_speech(frame)
 
-    beep_hit, beep_time = beep.process(frame, current_time=elapsed)
+    beep_hit, beep_time = beep.process(frame, transcript, speech_detected, current_time=elapsed)
     s2_hit = signal2.process(frame, transcript, current_time=elapsed)
-    timeout_hit = timeout.process(speech_detected, transcript, current_time=elapsed)
+    timeout_hit = timeout.process(speech_detected, current_time=elapsed)
 
     if resolver.resolve(beep_hit, s2_hit, timeout_hit, beep_time=beep_time):
         print(

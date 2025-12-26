@@ -1,11 +1,12 @@
 import numpy as np
 from scipy.signal import periodogram, get_window
 from scipy.fft import rfft, rfftfreq
+from classifier import mentions_beep
 
 BEEP_FREQ_MIN = 900
 BEEP_FREQ_MAX = 1600
 MIN_DURATION_FRAMES = 12  # ~240 ms
-POWER_THRESHOLD_DB = -30  # Minimum power relative to peak
+EXPECTED_BEEP_TIMEOUT = 3.0  # If beep is expected but no beep in 3s silence, trigger anyway
 
 class BeepDetector:
     def __init__(self, sample_rate=16000, frame_ms=20):
@@ -16,6 +17,8 @@ class BeepDetector:
         self.current_time = 0
         self.frame_duration = frame_ms / 1000.0
         self.detected = False
+        self.beep_expected = False
+        self.silence_start = None
         
     def _detect_tone_frequency(self, frame):
         """
@@ -44,13 +47,15 @@ class BeepDetector:
         
         return dominant_freq, dominant_power_db
 
-    def process(self, frame, current_time=None):
+    def process(self, frame, transcript, is_speech, current_time=None):
         """
         Process audio frame for beep detection.
         
         Args:
             frame: Audio frame (numpy array)
-            current_time: Elapsed time in seconds (optional, auto-incremented if not provided)
+            transcript: STT transcript string
+            is_speech: Whether speech is detected in frame
+            current_time: Elapsed time in seconds
             
         Returns:
             (beep_detected: bool, beep_time: float or None)
@@ -63,28 +68,45 @@ class BeepDetector:
         if self.detected:
             return False, None
         
+        # Check if beep is expected based on transcript
+        if transcript:
+            self.beep_expected = mentions_beep(transcript)
+        
         freq, power_db = self._detect_tone_frequency(frame)
         
         if freq is None:
             self.count = 0
-            return False, None
-        
-        # Check if dominant frequency is in beep range AND power is sufficient
-        in_range = BEEP_FREQ_MIN <= freq <= BEEP_FREQ_MAX
-        
-        if in_range:
-            if self.count == 0:
-                self.beep_start_time = self.current_time
-            
-            self.count += 1
-            
-            # Beep confirmed: stable tone for required duration
-            if self.count >= MIN_DURATION_FRAMES:
-                self.detected = True
-                beep_trigger_time = self.beep_start_time + 0.05  # +50ms as per spec
-                return True, beep_trigger_time
         else:
-            self.count = 0
-            self.beep_start_time = None
+            # Check if dominant frequency is in beep range
+            in_range = BEEP_FREQ_MIN <= freq <= BEEP_FREQ_MAX
+            
+            if in_range:
+                if self.count == 0:
+                    self.beep_start_time = self.current_time
+                
+                self.count += 1
+                
+                # Beep confirmed: stable tone for required duration
+                if self.count >= MIN_DURATION_FRAMES:
+                    self.detected = True
+                    beep_trigger_time = self.beep_start_time + 0.05  # +50ms as per spec
+                    return True, beep_trigger_time
+            else:
+                self.count = 0
+                self.beep_start_time = None
+        
+        # If beep is expected, monitor silence and trigger if 3s silence without beep
+        if self.beep_expected and not is_speech:
+            if self.silence_start is None:
+                self.silence_start = self.current_time
+            
+            silence_duration = self.current_time - self.silence_start
+            
+            # Timeout: beep expected but 3s silence without beep detected
+            if silence_duration >= EXPECTED_BEEP_TIMEOUT:
+                self.detected = True
+                return True, self.current_time
+        elif is_speech:
+            self.silence_start = None
         
         return False, None
