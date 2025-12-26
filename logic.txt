@@ -1,11 +1,11 @@
-Three signals we are tracking - BEEP, GREET, TIMEOUT
+Three signals we are tracking - BEEP, MESSAGE_END, TIMEOUT
 
 START AFTER VOICEMAIL_STARTED
 
 BEEP
 if (BEEP_HEARD) OR (BEEP_EXPECTED and 3_SECONDS_SILENCE) - trigger  (wait for beep upto 3s)
 
-GREET
+MESSAGE_END
 if (!BEEP_EXPECTED and MESSAGE_END_GREET_DETECTED and 0.8_SECONDS_SILENCE)
 
 TIMEOUT

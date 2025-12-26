@@ -7,7 +7,7 @@ from timeout import Timeout
 from resolver import Resolver
 from vad import is_speech
 
-AUDIO_FILE = "voicemails/vm6.wav"
+AUDIO_FILE = "voicemails/vm7.wav"
 
 beep = BeepDetector()
 signal2 = Signal2()
