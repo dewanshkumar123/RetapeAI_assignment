@@ -43,8 +43,7 @@ The system tracks three primary signals to determine when to drop the voicemail:
 
 ## Core Logic Flow Diagram
 
-![Voicemail Compliance Flow](images/Retape_nt.png)
-![Voicemail Compliance Flow](images/Retape_t.png)
+<img src="images/Retape_nt.png" alt="Voicemail Compliance Flow" width="600">
 
 
 ## File Structure
