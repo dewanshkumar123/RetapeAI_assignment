@@ -220,6 +220,8 @@ class BeepDetector:
                     and np.std(self.freq_history) <= FREQ_STABILITY_HZ
                 ):
                     self.detected = True
+                    # Playback begins approximately 50 ms after beep detection
+                    # to avoid overlap with beep tail and audio buffering artifacts
                     return True, self.beep_start_time + 0.05
 
             else:

@@ -17,14 +17,18 @@ The challenge is timing the message drop correctly - too early and the consumer 
 The system tracks three primary signals to determine when to drop the voicemail:
 
 ### 1. BEEP Signal
-- **Detection**: Identifies beep tones in the 500-2000 Hz frequency range
+- **Detection**: 
+   - Identifies voicemail beep tones using narrow-band frequency analysis. 
+   - Playback begins approximately 50 ms after beep detection to avoid overlap with beep tail and audio buffering artifacts.
 - **Trigger Conditions**:
   - Beep heard directly, OR
   - Beep expected (based on transcript mentioning "beep", "tone", etc.) AND 3 seconds of silence
 - **Priority**: Highest (immediate trigger after beep detection)
 
 ### 2. MESSAGE_END Signal
-- **Detection**: Uses speech-to-text to identify greeting completion phrases
+- **Detection**: 
+   - Uses speech-to-text to identify greeting completion phrases. 
+   - MESSAGE_END triggers only after phrase detection and confirmed post-utterance silence, preventing mid-sentence false positives.
 - **Keywords**: "hang up", "thanks for calling", "goodbye", "bye", "good day", regex patterns for conversation enders
 - **Trigger Conditions**:
   - No beep expected in transcript
@@ -35,6 +39,7 @@ The system tracks three primary signals to determine when to drop the voicemail:
 ### 3. TIMEOUT Signal
 - **Detection**: Pure silence-based fallback
 - **Trigger Conditions**:
+  - No beep expected
   - At least one speech burst detected previously
   - 3 seconds of continuous silence
 - **Priority**: Lowest (safety net)
@@ -90,7 +95,7 @@ The system tracks three primary signals to determine when to drop the voicemail:
    - If needed, download from: https://alphacephei.com/vosk/models
 
 4. **Ensure audio files are in place**:
-   - Place the 7 voicemail audio files in the `voicemails/` directory
+   - Place the voicemail audio files in the `voicemails/` directory
    - Files should be named: `vm1_output.wav` through `vm7_output.wav`
 
 ## Usage
@@ -100,7 +105,7 @@ The system tracks three primary signals to determine when to drop the voicemail:
 Modify `main.py` to change the filename:
 
 ```python
-filename = "vm3_output.wav"  # Change this to desired file
+filename = "vm3_output.wav"  
 ```
 
 Then run:

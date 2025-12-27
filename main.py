@@ -11,7 +11,7 @@ from utils.vad import is_speech
 VOICEMAILS_DIR = "voicemails"
 
 
-filename = "vm3_output.wav"
+filename = "vm7_output.wav"
 audio_path = os.path.join(VOICEMAILS_DIR, filename)
 print(f"\nProcessing file: {audio_path}")
 
