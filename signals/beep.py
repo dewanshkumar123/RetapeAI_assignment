@@ -176,7 +176,7 @@ class BeepDetector:
 
         return dominant_freq, spectral_ratio
 
-    def process(self, frame, transcript, is_speech, current_time=None):
+    def process(self, frame, transcript, is_speech, silence_since=None, current_time=None):
         """
         Process audio frame for beep detection.
 
@@ -228,17 +228,9 @@ class BeepDetector:
                 self.beep_start_time = None
 
         # Expected beep fallback: silence timeout
-        if self.beep_expected and not is_speech:
-            if self.silence_start is None:
-                self.silence_start = self.current_time
-
-            silence_duration = self.current_time - self.silence_start
-
-            if silence_duration >= EXPECTED_BEEP_TIMEOUT:
+        if self.beep_expected and not is_speech and silence_since is not None:
+            if silence_since >= EXPECTED_BEEP_TIMEOUT:
                 self.detected = True
                 return True, self.current_time
-
-        elif is_speech:
-            self.silence_start = None
 
         return False, None
