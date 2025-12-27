@@ -23,7 +23,6 @@ The system tracks three primary signals to determine when to drop the voicemail:
 - **Trigger Conditions**:
   - Beep heard directly, OR
   - Beep expected (based on transcript mentioning "beep", "tone", etc.) AND 3 seconds of silence
-- **Priority**: Highest (immediate trigger after beep detection)
 
 ### 2. MESSAGE_END Signal
 - **Detection**: 
@@ -34,7 +33,6 @@ The system tracks three primary signals to determine when to drop the voicemail:
   - No beep expected in transcript
   - Greeting end phrase detected
   - 1 second of continuous silence after detection
-- **Priority**: Medium
 
 ### 3. TIMEOUT Signal
 - **Detection**: Pure silence-based fallback
@@ -42,12 +40,12 @@ The system tracks three primary signals to determine when to drop the voicemail:
   - No beep expected
   - At least one speech burst detected previously
   - 3 seconds of continuous silence
-- **Priority**: Lowest (safety net)
 
-### Signal Resolution Priority
-1. BEEP (immediate after detection)
-2. MESSAGE_END (after 1s silence confirmation)
-3. TIMEOUT (after 3s silence)
+## Core Logic Flow Diagram
+
+![Voicemail Compliance Flow](images/Retape_nt.png)
+![Voicemail Compliance Flow](images/Retape_t.png)
+
 
 ## File Structure
 
