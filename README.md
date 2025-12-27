@@ -45,6 +45,11 @@ The system tracks three primary signals to determine when to drop the voicemail:
 
 <img src="images/Retape_nt.png" alt="Voicemail Compliance Flow" width="600">
 
+## Tools used
+
+- Vosk for free, offline streaming speech-to-text, used to detect greeting content, end-of-greeting phrases, and whether a beep is semantically expected.
+- WebRTC VAD for voice activity detection, used to distinguish speech from silence and enforce silence confirmation windows.
+- NumPy + SciPy (FFT) for beep detection, using narrow-band frequency analysis, spectral concentration, and stability checks.
 
 ## File Structure
 

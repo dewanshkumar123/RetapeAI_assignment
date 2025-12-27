@@ -11,7 +11,7 @@ from utils.vad import is_speech
 VOICEMAILS_DIR = "voicemails"
 
 
-filename = "vm6_output.wav"
+filename = "vm7_output.wav"
 audio_path = os.path.join(VOICEMAILS_DIR, filename)
 print(f"\nProcessing file: {audio_path}")
 
@@ -27,7 +27,7 @@ silence_since = 0.0
 
 for frame in stream_audio(audio_path):
     transcript = feed_audio(recognizer, frame)
-    print(transcript)
+    # print(transcript)
     speech_detected = is_speech(frame)
     if speech_detected:
         silence_since = 0.0
