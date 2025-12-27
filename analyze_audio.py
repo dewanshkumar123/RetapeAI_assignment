@@ -32,7 +32,7 @@ def create_plots(audio_file):
     
     # Create output directory
     filename = os.path.splitext(os.path.basename(audio_file))[0]
-    output_dir = f"plots_{filename}"
+    output_dir = f"plots/{filename}"
     os.makedirs(output_dir, exist_ok=True)
     
     print(f"Creating plots in {output_dir}/...")
@@ -131,49 +131,7 @@ def create_plots(audio_file):
     plot_file = os.path.join(output_dir, f'{filename}_analysis.png')
     plt.savefig(plot_file, dpi=150, bbox_inches='tight')
     print(f"✓ Saved: {plot_file}")
-    
-    # Also save individual plots for closer inspection
-    
-    # Save spectrogram only
-    fig_spec = plt.figure(figsize=(14, 6))
-    f, t, Sxx = spectrogram(data, sr, nperseg=2048, noverlap=1024)
-    plt.pcolormesh(t, f, 10 * np.log10(Sxx + 1e-10), shading='gouraud', cmap='viridis')
-    plt.ylabel('Frequency (Hz)')
-    plt.xlabel('Time (s)')
-    plt.title('Spectrogram - Full Range')
-    plt.ylim([0, 8000])
-    plt.colorbar(label='Power (dB)')
-    spec_file = os.path.join(output_dir, f'{filename}_spectrogram_full.png')
-    plt.savefig(spec_file, dpi=150, bbox_inches='tight')
-    print(f"✓ Saved: {spec_file}")
-    plt.close(fig_spec)
-    
-    # Save beep region spectrogram
-    fig_beep = plt.figure(figsize=(14, 6))
-    plt.pcolormesh(t, f, 10 * np.log10(Sxx + 1e-10), shading='gouraud', cmap='viridis')
-    plt.ylabel('Frequency (Hz)')
-    plt.xlabel('Time (s)')
-    plt.title('Spectrogram - Beep Region (900-1600 Hz)')
-    plt.ylim([900, 1600])
-    plt.colorbar(label='Power (dB)')
-    beep_file = os.path.join(output_dir, f'{filename}_spectrogram_beep.png')
-    plt.savefig(beep_file, dpi=150, bbox_inches='tight')
-    print(f"✓ Saved: {beep_file}")
-    plt.close(fig_beep)
-    
-    # Save waveform only
-    fig_wave = plt.figure(figsize=(14, 4))
-    plt.plot(time, data, linewidth=0.5)
-    plt.xlabel('Time (s)')
-    plt.ylabel('Amplitude')
-    plt.title('Waveform')
-    plt.grid(True, alpha=0.3)
-    wave_file = os.path.join(output_dir, f'{filename}_waveform.png')
-    plt.savefig(wave_file, dpi=150, bbox_inches='tight')
-    print(f"✓ Saved: {wave_file}")
-    plt.close(fig_wave)
-    
-    plt.close(fig)
+
     
     # Print audio statistics
     print(f"\n{'='*50}")
@@ -189,11 +147,12 @@ def create_plots(audio_file):
 
 if __name__ == "__main__":
     # Change this path to the audio file you want to analyze
-    audio_file = "voicemails/vm2.wav"
-    
-    if not os.path.exists(audio_file):
-        print(f"Error: File '{audio_file}' not found!")
-        exit(1)
-    
-    create_plots(audio_file)
-    print(f"Analysis complete! Check the plots_* folder for visualizations.")
+    for i in range(1,8):
+        audio_file = f"voicemails/vm{i}_output.wav"
+        
+        if not os.path.exists(audio_file):
+            print(f"Error: File '{audio_file}' not found!")
+            exit(1)
+        
+        create_plots(audio_file)
+        print(f"Analysis complete! Check the plots_* folder for visualizations.")

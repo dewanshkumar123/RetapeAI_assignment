@@ -1,9 +1,9 @@
-from vad import is_speech
-from classifier import mentions_beep, greeting_finished
+from utils.vad import is_speech
+from utils.classifier import mentions_beep, greeting_finished
 
 SILENCE_CONFIRMATION = 0.8  # Silence duration to confirm greeting end is real
 
-class Signal2:
+class MessageEnd:
     def __init__(self):
         self.detected = False
         self.greeting_detected = False

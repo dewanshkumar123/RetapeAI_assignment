@@ -115,7 +115,7 @@
 import numpy as np
 from scipy.signal import get_window
 from scipy.fft import rfft, rfftfreq
-from classifier import mentions_beep
+from utils.classifier import mentions_beep
 
 # --- Tuned constants (minimal change, high impact) ---
 BEEP_FREQ_MIN = 500
