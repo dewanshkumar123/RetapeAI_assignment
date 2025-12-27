@@ -6,7 +6,7 @@ BEEP_KEYWORDS = [
 
 END_GREETING_KEYWORDS = [
     "hang up", "thanks for calling",
-     "goodbye", "bye", "good day"
+     "goodbye", "bye", "good day", "call you back"
 ]
 
 CONVERSATION_ENDERS = [
